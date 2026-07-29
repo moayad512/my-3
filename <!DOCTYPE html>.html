@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>التنظيم الهرمي لنظام لينكس - دليل شامل</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Fira+Code:wght@400;600&display=swap');
+
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --accent2: #818cf8;
+            --warning: #fb923c;
+            --danger: #f87171;
+            --success: #4ade80;
+            --code-bg: #020617;
+            --border: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.8;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            background-color: var(--card-bg);
+            border-left: 1px solid var(--border);
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent) var(--card-bg);
+        }
+
+        .sidebar h2 {
+            color: var(--accent);
+            padding: 0 20px 15px;
+            border-bottom: 1px solid var(--border);
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar ul li a {
+            display: block;
+            padding: 8px 20px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            border-right: 3px solid transparent;
+        }
+
+        .sidebar ul li a:hover, .sidebar ul li a.active {
+            color: var(--accent);
+            background-color: rgba(56, 189, 248, 0.05);
+            border-right-color: var(--accent);
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            padding: 40px 60px;
+            max-width: 900px;
+        }
+
+        .header-section {
+            margin-bottom: 50px;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 30px;
+        }
+
+        .header-section h1 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+        }
+
+        .header-section p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+        }
+
+        h2 {
+            color: var(--accent);
+            font-size: 1.8rem;
+            margin: 50px 0 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h2::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 30px;
+            background-color: var(--accent);
+            border-radius: 3px;
+        }
+
+        h3 {
+            color: var(--accent2);
+            margin: 25px 0 10px;
+            font-size: 1.2rem;
+        }
+
+        p {
+            margin-bottom: 15px;
+        }
+
+        /* Cards for Directories */
+        .dir-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .dir-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border-color: var(--accent);
+        }
+
+        .dir-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .dir-name {
+            font-family: 'Fira Code', monospace;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--success);
+            direction: ltr;
+            display: inline-block;
+        }
+
+        .dir-meaning {
+            background-color: rgba(129, 140, 248, 0.15);
+            color: var(--accent2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .dir-desc {
+            color: var(--text-main);
+            margin-bottom: 15px;
+        }
+
+        .examples-box {
+            background-color: var(--code-bg);
+            border-radius: 8px;
+            padding: 15px;
+            border-right: 3px solid var(--warning);
+        }
+
+        .examples-box h4 {
+            color: var(--warning);
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        code {
+            font-family: 'Fira Code', monospace;
+            background-color: var(--code-bg);
+            color: var(--danger);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            direction: ltr;
+            display: inline-block;
+        }
+
+        pre {
+            background-color: var(--code-bg);
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            direction: ltr;
+            text-align: left;
+            border: 1px solid var(--border);
+            margin: 15px 0;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+            color: var(--text-main);
+        }
+
+        .note {
+            background-color: rgba(56, 189, 248, 0.1);
+            border-right: 4px solid var(--accent);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .warning-note {
+            background-color: rgba(251, 146, 60, 0.1);
+            border-right: 4px solid var(--warning);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        ul.styled-list {
+            list-style: none;
+            padding-right: 20px;
+        }
+
+        ul.styled-list li {
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        ul.styled-list li::before {
+            content: '♦';
+            color: var(--accent);
+            position: absolute;
+            right: -20px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 900px) {
+            body {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                border-left: none;
+                border-bottom: 1px solid var(--border);
+            }
+            .sidebar ul {
+                display: flex;
+                flex-wrap: wrap;
+                padding: 0 10px;
+            }
+            .sidebar ul li a {
+                padding: 8px 12px;
+                border-right: none;
+                border-bottom: 2px solid transparent;
+            }
+            .sidebar ul li a:hover, .sidebar ul li a.active {
+                border-right-color: transparent;
+                border-bottom-color: var(--accent);
+            }
+            .main-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar">
+        <h2>فهرس المحتويات</h2>
+        <ul>
+            <li><a href="#philosophy">الفلسفة الأساسية</a></li>
+            <li><a href="#fhs">معيار FHS</a></li>
+            <li><a href="#root">الجذر (/)</a></li>
+            <li><a href="#bin">/bin و /sbin</a></li>
+            <li><a href="#boot">/boot</a></li>
+            <li><a href="#dev">/dev</a></li>
+            <li><a href="#etc">/etc</a></li>
+            <li><a href="#home-root">/home و /root</a></li>
+            <li><a href="#lib">/lib</a></li>
+            <li><a href="#usr">/usr (التغيير الحديث)</a></li>
+            <li><a href="#var">/var</a></li>
+            <li><a href="#tmp">/tmp</a></li>
+            <li><a href="#opt">/opt</a></li>
+            <li><a href="#media-mnt">/media و /mnt</a></li>
+            <li><a href="#proc-sys">/proc و /sys</a></li>
+            <li><a href="#run">/run</a></li>
+            <li><a href="#lost-found">/lost+found</a></li>
+            <li><a href="#advanced">مفاهيم متقدمة إضافية</a></li>
+            <li><a href="#paths">أنواع المسارات</a></li>
+            <li><a href="#importance">أهمية هذا التنظيم</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        
+        <header class="header-section">
+            <h1>التنظيم الهرمي لنظام لينكس</h1>
+            <p>دليل شامل ومفصل لشجرة نظام الملفات (Filesystem Hierarchy Standard - FHS)، من الجذر إلى أصغر تفاصيل المجلدات، مع شرح المفاهيم المتقدمة التي يحتاجها مديرو الأنظمة.</p>
+        </header>
+
+        <section id="philosophy">
+            <h2>الفلسفة الأساسية لنظام لينكس</h2>
+            <p>قبل فهم المجلدات، يجب استيعاب ثلاث قواعد ذهبية تحكم نظام لينكس وتختلف جذرياً عن أنظمة مثل ويندوز أو ماك:</p>
+            <ul class="styled-list">
+                <li><strong>كل شيء هو ملف (Everything is a File):</strong> المستندات، الصور، الأجهزة المادية (مثل القرص الصلب، لوحة المفاتيح، المنافذ التسلسلية)، وحتى معلومات نواة النظام (Kernel) والعمليات التشغيلية (Processes) يتم تمثيلها كملفات يمكنك قراءتها أو الكتابة إليها (إذا كانت لديك الصلاحيات).</li>
+                <li><strong>شجرة مقلوبة مفردة (Single Inverted Tree):</strong> لا يوجد في لينكس ما يسمى بـ "أقراص" منفصلة مثل C: أو D:. يبدأ النظام دائماً من نقطة واحدة تُسمى <strong>الجذر (Root)</strong> ويُرمز لها بالشرطة المائلة <code>/</code>. إذا أضفت قرصاً صلباً جديداً أو فلاشة USB، فإن النظام لا يعطيها حرفاً جديداً، بل يقوم بـ "تركيب" (Mounting) هذه الأجهزة داخل أحد فروع الشجرة لتصبح جزءاً من النظام.</li>
+                <li><strong>حساسية حالة الأحرف (Case Sensitivity):</strong> المجلد <code>Documents</code> يختلف تماماً عن <code>documents</code> و <code>DOCUMENTS</code>. وهذا ينطبق على الملفات والأوامر أيضاً.</li>
+            </ul>
+        </section>
+
+        <section id="fhs">
+            <h2>معيار FHS (Filesystem Hierarchy Standard)</h2>
+            <p>التنظيم الهرمي ليس عشوائياً، بل هو موثق في معيار دولي يُسمى FHS. هذا المعيار يضمن أن مبرمجي البرامج يعرفون بالضبط أين يضعون ملفات الإعدادات، وأين يضعون الملفات التنفيذية، مما يجعل البرنامج يعمل على أي توزيعة لينكس (أوبونتو، ريد هات، آرتش، ديبيان) دون تعديل المسارات.</p>
+        </section>
+
+        <section id="root">
+            <div class="dir-card">
+                <div class="dir-title">
+                    <span class="dir-name">/</span>
+                    <span class="dir-meaning">Root Directory (الجذر)</span>
+                </div>
+                <p class="dir-desc">أعلى نقطة في النظام الهرمي. لا يوجد فوقه أي مجلد. جميع الملفات والمجلدات الموجودة على القرص الصلب، والأقراص الخارجية، والأقراص الشبكية، تقع تحت هذا المسار.</p>
+                <div class="warning-note">
+                    <strong>تحذير شائع:</strong> لا تقم أبداً بتنفيذ أمر <code>rm -rf /</code> (حذف كل شيء بدءاً من الجذر) كمسؤول (root)، فهذا سيؤدي إلى مسح نظام التشغيل بالكامل في ثوانٍ!
+                </div>
+            </div>
+        </section>
+
+        <section id="bin">
+            <div class="dir-card">
+                <div class="dir-title">
+                    <span class="dir-name">/bin</span>
+                    <span class="dir-meaning">User Binaries (أوامر المستخدمين الأساسية)</span>
+                </div>
+                <p class="dir-desc">يحتوي على الملفات التنفيذية (الأوامر) الأساسية التي يحتاجها جميع المستخدمين (وحتى النظام نفسه) للعمل. هذه الأوامر متاحة حتى إذا لم يتم تركيب أي قسم آخر في النظام، وهي ضرورية في وضع الطوارئ (Single-user mode).</p>
+                <div class="examples-box">
+                    <h4>أمثلة على الأوامر:</h4>
+                    <code>ls</code> (عرض الملفات)، <code>cp</code> (نسخ)، <code>mv</code> (نقل/إعادة تسمية)، <code>cat</code> (قراءة ملف)، <code>echo</code> (طباعة نص)، <code>bash</code> (مترجم الأوامر).
+                </div>
+            </div>
+
+            <div class="dir-card">
+                <div class="dir-title">
+                    <span class="dir-name">/sbin</span>
+                    <span class="dir-meaning">System Binaries (أوامر مسؤول النظام)</span>
+                </div>
+                <p class="dir-desc">تحتوي على الأوامر التنفيذية الضرورية لإدارة وصيانة وتهيئة النظام. تُستخدم هذه الأوامر غالباً من قبل المستخدم الخارق (root) لتشخيص المشاكل أو إصلاح النظام.</p>
+                <div class="examples-box">
+                    <h4>أمثلة على الأوامر:</h4>
+                    <code>fdisk</code> (تقسيم الأقراص)، <code>fsck</code> (فحص وإصلاح نظام الملفات)، <code>reboot</code> (إعادة التشغيل)， <code>iptables</code> (إعداد جدار الحماية)، <code>ifconfig</code> أو <code>ip</code> (إعدادات الشبكة).
+                </div>
+            </div>
+        </section>
+
+        <section id="boot">
+            <div class="dir-card">
+                <div class="dir-title">
+                    <span class="dir-name">/boot</span>
+                    <span class="dir-meaning">Boot Loader Files (ملفات الإقلاع)</span>
+                </div>
+                <p class="dir-desc">يحتوي على جميع الملفات الثابتة المطلوبة لبدء تشغيل النظام (Bootstrapping). عندما تضغط زر الطاقة في الكمبيوتر، البرنامج الثابت (BIOS/UEFI) يبحث هنا عن نواة النظام (Kernel) لتحميلها إلى الذاكرة.</p>
+                <div class="examples-box">
+                    <h4>محتويات هامة:</h4>
+                    <ul class="styled-list">
+                        <li><code>vmlinuz</code>: نواة لينكس المضغوطة.</li>
+                        <li><code>initramfs</code> أو <code>initrd</code>: صورة ذاكرة مؤقتة تحتوي على برامج ومشغلات ضرورية لتحميل النظام الأساسي قبل أن يتمكن من قراءة نظام الملفات الحقيقي.</li>
+                        <li><code>grub/</code>: مجلد يحتوي على إعدادات وملفات برنامج الإقلاع GRUB.</li>
+                    </ul>
+                </div>
+                <div class="note">
+                    <strong>ملاحظة هندسية:</strong> في بعض الأنظمة القديمة، كان يجب أن يكون مجلد <code>/boot</code> في بداية القرص الصلب (أقل من 1024 سيليندر) لكي يتمكن BIOS من قراءته، لكن هذا لم يعد ضرورياً مع أنظمة UEFI الحديثة.
+                </div>
+            </div>
+        </section>
+
+        <section id="dev">
+            <div class="dir-card">
+                <div class="dir-title">
+                    <span class="dir-name">/dev</span>
+                    <span class="dir-meaning">Device Files (ملفات الأجهزة)</span>
+                </div>
+                <p class="dir-desc">تطبيقاً لقاعدة "كل شيء هو ملف"، هذا المجلد يحتوي على ملفات تمثل الأجهزة المادية والافتراضية. إذا أردت القراءة من فلاشة، فإنك تقرأ من ملفها الموجود هنا. إذا أردت إرسال صورة إلى طابعة، فإنك تكتب في ملف الطابعة هنا.</p>
+                <div class="examples-box">
+                    <h4>أنواع ملفات الأجهزة:</h4>
+                    <ul class="styled-list">
+                        <li><strong>أقراص التخزين:</strong> <code>/dev/sda</code> (القرص الصلب الأول SATA)، <code>/dev/nvme0n1</code> (أقراص SSD الحديثة)، <code>/dev/sdb1</code> (القسم الأول من القرص الثاني).</li>
+                        <li><strong>أجهزة الإدخال/الإخراج:</strong> <code>/dev/tty</code> (الشاشة الطرفية)، <code>/dev/input/mice</code> (الماوس).</li>
+                        <li><strong>ملفات وهمية (Pseudo-devices):</strong>
+                            <code>/dev/null</code> (ثقب أسود، يلغي أي شيء يُكتب فيه)،
+                            <code>/dev/zero</code> (يُنتج بايتات أصفار لا نهائية)،
+                            <code>/dev/random</code> (يُنتج أرقاماً عشوائية بناءً على ضوضاء العتاد).
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="etc">
+            <div class="dir-card">
+                <div class="dir-title">
+                    <span class="dir-name">/etc</span>
+                    <span class="dir-meaning">Etcetera (ملفات الإعدادات)</span>
+                </div>
+                <p class="dir-desc">من أهم المجلدات لمديري الأنظمة. يحتوي على ملفات الإعدادات النصية (Configuration Files) الخاصة بالنظام الأساسي وكل البرامج المثبتة (مثل خادم الويب Apache، قواعد البيانات، الشبكة). لا يوجد هنا ملفات تنفيذية (برامج)، بل ملفات نصية نقية تتحكم في سلوك النظام.</p>
+                <div class="examples-box">
+                    <h4>أمثلة لملفات إعدادات حرجة:</h4>
+                    <ul class="styled-list">
+                        <li><code>/etc/passwd</code>: يحتوي على معلومات حسابات المستخدمين.</li>
+                        <li><code>/etc/shadow</code>: يحتوي على كلمات المرور المشفرة (لا يمكن قراءته إلا من قبل root).</li>
+                        <li><code>/etc/fstab</code>: يحدد الأقراص والمجلدات وكيفية تركيبها (Mount) عند بدء التشغيل.</li>
+                        <li><code>/etc/hostname</code>: اسم جهازك على الشبكة.</li>
+                        <li><code>/etc/network/</code> أو <code>/etc/NetworkManager/</code>: إعدادات الاتصال بالشبكة والـ Wi-Fi.</li>
+                    </ul>
+                </div>
+                <div class="note">
+                    <strong>تاريخياً:</strong> كان يُطلق عليه في نظام يونكس القديم "Etcetera" لأنه كان يحتوي على ملفات متنوعة لا تنتمي لأي مكان آخر، لكن الآن أصبح مخصصاً حصرياً للإعدادات.
+                </div>
+            </div>
+        </section>
+
+        <section id="home-root">
+            <div class="dir-card">
+                <div class="dir-title">
+                    <span class="dir-name">/home</span>
+                    <span class="dir-meaning">User Home Directories (المنازل الشخصية)</span>
+                </div>
+                <p class="dir-desc">المكان الذي يتم فيه تخزين البيانات الشخصية والملفات والمستندات لكل مستخدم عادي في النظام. لكل مستخدم مجلد خاص به يحمل اسمه (مثل <code>/home/ahmed</code>). المستخدم لديه صلاحيات كاملة (قراءة، كتابة، حذف) داخل مجلده فقط، ولا يمكنه (بشكل افتراضي) التعديل على ملفات المستخدمين الآخرين أو ملفات النظام.</p>
+                <div class="examples-box">
+                    <h4>محتويات مجلد المنزل:</h4>
+                    <code>Desktop/</code>، <code>Documents/</code>، <code>Downloads/</code>، <code>.bashrc</code> (ملف مخفي يحتوي على إعدادات سطر الأوامر الخاصة بالمستخدم)، <code>.ssh/</code> (مفاتيح الاتصال الآمن).
+                </div>
+            </div>
+
+            <div class="dir-card">
+                <div class="dir-title">
+                    <span class="dir-name">/root</span>
+                    <span class="dir-meaning">Home Directory for Root (منزل المدير)</span>
+                </div>
+                <p class="dir-desc">هو المجلد الشخصي الخاص بمستخدم الجذر (Root User - المستخدم رقم 0 الذي يملك صلاحيات لا محدودة). يقع خارج مجلد <code>/home</code> ضماناً لعمله حتى لو كان قسم <code>/home</code> غير مركب (Unmounted) أو تالفاً.</p>
+                <div class="warning-note">
+                    <strong>تنبيه:</strong> لا تخلط بين الجذر <code>/</code> (بداية الشجرة) ومنزل المدير <code>/root</code>.
+                </div>
+            </div>
+        </section>
+
+        <section id="lib">
+            <div class="dir-card">
+                <div class="dir-title">
+                    <span class="dir-name">/lib</code></span>
+                    <span class="dir-meaning">System Libraries (مكتبات النظام)</span>
+                </div>
+                <p class="dir-desc">يحتوي على المكتبات المشتركة (Shared Libraries) اللازمة لتشغيل الأوامر الموجودة في <code>/bin</code> و <code>/sbin</code>. هذه المكتبات تشبه ملفات <code>.dll</code> في ويندوز. إذا حذفت مكتبة من هنا، سيتوقف عمل الأوامر الأساسية فوراً.</p>
+                <div class="examples-box">
+                    <h4>أمثلة:</h4>
+                    <code>/lib/libc.so.*</code> (مكتبة C الأساسية)، <code>/lib/modules/</code> (يحتوي على مشغلات النواة Kernel Modules الديناميكية مثل مشغلات كروت الشاشة أو الواي فاي).
+                </div>
+            </div>
+        </section>
+
+        <section id="usr">
+            <div class="dir-card">
+                <div class="dir-title">
+                    <span class="dir-name">/usr</span>
+                    <span class="dir-meaning">Unix System Resources (موارد نظام يونكس)</span>
+                </div>
+                <p class="dir-desc">ثاني أكبر هيكل في النظام. يحتوي على البرامج والتطبيقات والملفات التي لا تشكل جزءاً أساسياً من الإقلاع الأولي، ولكنها ضرورية لتشغيل النظام بشكل طبيعي واستخدام البرامج.</p>
+                <div class="examples-box">
+                    <h4>الهيكل الداخلي لـ /usr:</h4>
+                    <ul class="styled-list">
+                        <li><code>/usr/bin</code>: يحتوي على غالبية أوامر المستخدمين (مثل <code>python</code>, <code>git</code>, <code>firefox</code>).</li>
+                        <li><code>/usr/sbin</code>: أوامر إضافية لمدير النظام غير الضرورية للإقلاع.</li>
+                        <li><code>/usr/lib</code>: مكتبات البرامج الموجودة في <code>/usr/bin</code>.</li>
+                        <li><code>/usr/local</code>: <strong>(مهم جداً)</strong> يستخدم للبرامج التي يقوم المدير بتركيبها يدوياً من الكود المصدري (Compile) خارج مدير الحزم الخاص بالنظام. هيكله يشبه <code>/usr</code> (<code>/usr/local/bin</code> إلخ).</li>
+                        <li><code>/usr/share</code>: ملفات البيانات المستقلة عن بنية المعالج (مثل الصور، الأيقونات، الوثائق، ملفات التوثيق للبرامج).</li>
+                    </ul>
+                </div>
+                
+                <div class="note" style="margin-top: 20px; border-right-color: var(--success); background-color: rgba(74, 222, 128, 0.1);">
+                    <strong>تطور حديث هام (The /usr Merge):</strong><br>
+                    في التوزيعات الحديثة (مثل أوبونتو، فيدورا، دبيان)، تم دمج <code>/bin</code> داخل <code>/usr/bin</code>، و <code>/sbin</code> داخل <code>/usr/sbin</code>، و <code>/lib</code> داخل <code>/usr/lib</code>. المجلدات الأصلية في الجذر أصبحت الآن مجرد "روابط رمزية" (Symlinks) تشير إلى المجلدات داخل <code>/usr</code>. هذا يسهل على مطوري النواة ومديري الحزم إدارة الملفات التنفيذية في مكان واحد.
+                </div>
+            </div>
+        </section>
+
+        <section id="var">
+            <div class="dir-card">
+                <div class="dir-title">
+                    <span class="dir-name">/var</span>
+                    <span class="dir-meaning">Variable Data (البيانات المتغيرة)</span>
+                </div>
+                <p class="dir-desc">مخصص للملفات التي يتغير حجمها ومحتواها بشكل مستمر أثناء عمل النظام. في الأنظمة القديمة، كان يُفضل وضع <code>/var</code> في قسم (Partition) منفصل من القرص الصلب لمنع امتلاء القرص الأساسي بملفات السجلات مما قد يؤدي لتعطل النظام.</p>
+                <div class="examples-box">
+                    <h4>محتويات هامة:</h4>
+                    <ul class="styled-list">
+                        <li><code>/var/log/</code>: <strong>أهم مجلد لحل المشاكل (Troubleshooting).</strong> يحتوي على سجلات النظام (مثل <code>syslog</code>)، وسجلات البرامج (مثل سجلات خادم الويب أو قواعد البيانات).</li>
+                        <li><code>/var/cache/</code>: ملفات مؤقتة مخزنة لتسريع عمل البرامج (مثل ذاكرة التخزين المؤقت لمدير الحزم APT).</li>
+                        <li><code>/var/spool/</code>: ملفات تنتظر المعالجة (مثل مهام الطباعة في مجلد الطابعة، أو رسائل البريد الإلكتروني الخارجة).</li>
+                        <li><code>/var/lib/</code>: بيانات الحالة المتغيرة للبرامج (مثل قواعد بيانات MySQL/PostgreSQL يتم تخزينها غالباً هنا).</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="tmp">
+            <div class="dir-card">
+                <div class="dir-title">
+                    <span class="dir-name">/tmp</span>
+                    <span class="dir-meaning">Temporary Files (الملفات المؤقتة)</span>
+                </div>
+                <p class="dir-desc">مجلد يُستخدم من قبل البرامج والمستخدمين لإنشاء ملفات مؤقتة تحتاجها أثناء العمل فقط. <strong>يتم حذف محتوياته تلقائياً عند كل إعادة تشغيل للنظام (Reboot).</strong></p>
+                <div class="warning-note">
+                    <strong>تحذير أمني:</strong> في الأنظمة الحديثة، يتم تطبيق خاصية <code>sticky bit</code> على هذا المجلد. هذا يعني أن أي مستخدم يمكنه إنشاء ملف هنا، لكن <strong>لا يمكنه حذف أو تعديل ملفات المستخدمين الآخرين</strong> الموجودة هنا، لحماية أمان النظام.
+                </div>
+            </div>
+        </section>
+
+        <section id="opt">
+            <div class="dir-card">
+                <div class="dir-title">
+                    <span class="dir-name">/opt</span>
+                    <span class="dir-meaning">Optional (حزم البرمجيات الاختيارية)</span>
+                </div>
+                <p class="dir-desc">يُستخدم لتثبيت حزم البرمجيات الكبيرة أو التجارية أو الخاصة التي لا تتبع معايير لينكس القياسية (التي تضع ملفاتها في <code>/usr</code>). البرنامج الذي يُثبت هنا يضع كل ملفاته في مجلد فرعي خاص به.</p>
+                <div class="examples-box">
+                    <h4>مثال:</h4>
+                    إذا قمت بتحميل برنامج مثل Google Chrome أو بعض برامج المؤسسات بصيغتها الخاصة (بدون استخدام مدير الحزم)، فقد تجده ينشئ المجلد <code>/opt/google/chrome/</code> ويضع بداخله كل ملفاته التنفيذية والمكتبات الخاصة به معزولاً عن باقي النظام.
+                </div>
+            </div>
+        </section>
+
+        <section id="media-mnt">
+            <div class="dir-card">
+                <div class="dir-title">
+                    <span class="dir-name">/media & /mnt</span>
+                    <span class="dir-meaning">Mount Points (نقاط الركوب/التركيب)</span>
+                </div>
+                <p class="dir-desc">كلاهما يُستخدم كـ "منافذ" لربط أنظمة ملفات خارجية (مثل أقراص USB، الأقراص الصلبة الخارجية، أقراص CD/DVD) بشجرة لينكس.</p>
+                <ul class="styled-list">
+                    <li><strong><code>/media</code>:</strong> يُستخدم تلقائياً من قبل بيئة سطح المكتب (مثل GNOME أو KDE). عندما تقوم بإدخال فلاشة، يقوم النظام بإنشاء مجلد لها هنا (مثل <code>/media/ahmed/USB_DRIVE</code>) ويربطها به.</li>
+                    <li><strong><code>/mnt</code>:</strong> يُستخدم عادة يدوياً من قبل مسؤول النظام عبر سطر الأوامر (باستخدام أمر <code>mount</code>) لتركيب الأقراص بشكل مؤقت مؤقت لصيانتها أو أخذ نسخ احتياطية منها.</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="proc-sys">
+            <div class="dir-card">
+                <div class="dir-title">
+                    <span class="dir-name">/proc & /sys</span>
+                    <span class="dir-meaning">Virtual/Pseudo Filesystems (أنظمة ملفات وهمية)</span>
+                </div>
+                <p class="dir-desc">هذه المجلدات <strong>غير موجودة فعلياً على القرص الصلب!</strong> هي تمثيلات حية في ذاكرة الوصول العشوائي (RAM) تنشئها النواة (Kernel) لتتيح لك التواصل معها وتعديل إعداداتها كأنك تقرأ وتكتب ملفات نصية عادية.</p>
+                
+                <h3>مجلد /proc (Process Information)</h3>
+                <p>كل عملية (Process) تعمل حالياً في النظام يكون لها مجلد يحمل رقمها (PID). بداخله تجد كل تفاصيلها (الذاكرة التي تستهلكها، الملفات المفتوحة، إلخ).</p>
+                <div class="examples-box">
+                    <h4>ملفات سحرية في /proc:</h4>
+                    <code>/proc/cpuinfo</code> (يعرض مواصفات المعالج)، <code>/proc/meminfo</code> (يعرض حالة الذاكرة RAM)، <code>/proc/partitions</code> (يعرض أقسام الأقراص).
+                </div>
+
+                <h3>مجلد /sys (System Hardware)</h3>
+                <p>مشابه لـ <code>/proc</code> لكنه يركز على تفاصيل العتاد (Hardware) وتوصيلات النظام (Device Tree). يُستخدم بكثرة في الأنظمة المدمجة (Embedded Systems) مثل Raspberry Pi لتغيير إعدادات المنافذ (GPIO) أو إطفاء/تشغيل أجزاء من العتاد لتوفير الطاقة.</p>
+            </div>
+        </section>
+
+        <section id="run">
+            <div class="dir-card">
+                <div class="dir-title">
+                    <span class="dir-name">/run</span>
+                    <span class="dir-meaning">Runtime Data (بيانات وقت التشغيل)</span>
+                </div>
+                <p class="dir-desc">مجلد ظهر حديثاً (مع اعتماد نظام <code>systemd</code>). يحتوي على بيانات النظام التي تم إنشاؤها منذ بدء التشغيل وحتى إيقاف التشغيل. كان يتم وضع بعض هذه البيانات سابقاً في <code>/var/run</code> أو <code>/tmp</code>، لكن تم فصلها هنا لأسباب أمنية وتنظيمية.</p>
+                <div class="examples-box">
+                    <h4>أمثلة:</h4>
+                    ملفات تعرف على عملية تسجيل الدخول الحالية (<code>/run/user/</code>)، ملفات قفل (Lock files) تمنع تشغيل برنامج مرتين في نفس الوقت (مثل <code>/run/mysqld/mysqld.pid</code>).
+                </div>
+            </div>
+        </section>
+
+        <section id="lost-found">
+            <div class="dir-card">
+                <div class="dir-title">
+                    <span class="dir-name">/lost+found</span>
+                    <span class="dir-meaning">Recovered Files (الملفات المسترجعة)</span>
+                </div>
+                <p class="dir-desc">يوجد هذا المجلد في الجذر (وفي بداية كل قسم Partition مستقل). إذا تعرض نظام الملفات (مثل ext4) لانقطاع مفاجئ في الكهرباء أو تلف، وعندما يقوم النظام بإجراء فحص ذاتي (عبر أمر <code>fsck</code>) أثناء الإقلاع، سيجد ملفات تالفة أو "يتيمة" (أي محتواها موجود على القرص لكن اسمها أو ربطها بمجلدها الأصلي قد ضاع). يقوم النظام بنسخ هذه الأجزاء المسترجعة ووضعها في هذا المجلد لكي يحاول المدير استرجاعها يدوياً.</p>
+            </div>
+        </section>
+
+        <!-- Advanced Concepts Section -->
+        <section id="advanced">
+            <h2>مفاهيم متقدمة إضافية</h2>
+            
+            <div class="dir-card">
+                <h3 style="color: var(--warning); margin-top: 0;">1. الروابط الرمزية (Symlinks) في النظام الهرمي</h3>
+                <p>بسبب التطور التاريخي لينكس والانتقال إلى معايير حديثة، يعتمد النظام بشكل كبير على "الروابط الرمزية" (تشبه الاختصارات Shortcuts في ويندوز ولكنها أقوى). على سبيل المثال، في الأنظمة الحديثة، إذا قمت بتنفيذ الأمر <code>ls -l /bin</code>، ستجد أن <code>/bin</code> ليس مجلداً حقيقياً، بل هو اختصار يشير إلى <code>/usr/bin</code>.</p>
+                <pre><code>lrwxrwxrwx 1 root root 7 Jun 20 10:00 /bin -> usr/bin</code></pre>
+            </div>
+
+            <div class="dir-card">
+                <h3 style="color: var(--warning); margin-top: 0;">2. الصلاحيات (Permissions) ودورها في الحماية</h3>
+                <p>التنظيم الهرمي لا يُحمي بالشكل الصحيح دون نظام الصلاحيات. كل مجلد وملف في هذه الشجرة لديه 3 مستويات صلاحيات:</p>
+                <ul class="styled-list">
+                    <li><strong>المالك (Owner):</strong> عادة المستخدم الذي أنشأ الملف.</li>
+                    <li><strong>المجموعة (Group):</strong> مجموعة من المستخدمين يشتركون في نفس الصلاحيات.</li>
+                    <li><strong>الآخرون (Others):</strong> باقي المستخدمين في النظام.</li>
+                </ul>
+                <p>ولكل فئة 3 أفعال: <strong>قراءة (r)</strong>، <strong>كتابة (w)</strong>، <strong>تنفيذ (x)</strong>. مجلد مثل <code>/etc</code> صلاحيته للآخرين هي (قراءة وتنفيذ فقط)، مما يسمح للمستخدم العادي بقراءة الإعدادات، لكنه يمنعه من تعديلها (لا توجد صلاحية كتابة w).</p>
+            </div>
+
+            <div class="dir-card">
+                <h3 style="color: var(--warning); margin-top: 0;">3. الملفات المخفية (Hidden Files)</h3>
+                <p>أي ملف أو مجلد يبدأ بنقطة <code>.</code> (مثل <code>.bashrc</code> أو <code>.config</code>) يعتبر ملفاً مخفياً. لن يظهر عند استخدام أمر <code>ls</code> العادي، بل يجب استخدام <code>ls -a</code>. المجلد الشخصي للمستخدم يمتلئ عادة بهذه الملفات المخفية التي تخزن إعدادات التطبيقات الفردية لكل مستخدم.</p>
+            </div>
+        </section>
+
+        <section id="paths">
+            <h2>أنواع المسارات (Paths) في لينكس</h2>
+            <p>للوصول إلى أي ملف في هذه الشجرة، يمكنك استخدام نوعين من المسارات:</p>
+            <ul class="styled-list">
+                <li><strong>المسار المطلق (Absolute Path):</strong> يبدأ دائماً من الجذر <code>/</code> بغض النظر عن مكان تواجدك الحالي.<br>
+                مثال: <code>/var/log/syslog</code></li>
+                <li><strong>المسار النسبي (Relative Path):</strong> يبدأ من الموقع (المجلد) الذي تتواجد فيه حالياً.<br>
+                مثال: إذا كنت في <code>/var</code>، يمكنك الوصول للملف بكتابة: <code>log/syslog</code></li>
+            </ul>
+            
+            <h3>اختصارات سحرية للمسارات:</h3>
+            <div class="examples-box">
+                <ul class="styled-list">
+                    <li><code>.</code> (نقطة واحدة) = المجلد الحالي الذي أنت فيه.</li>
+                    <li><code>..</code> (نقطتان) = المجلد الأب (الذي يعلوك مباشرة).</li>
+                    <li><code>~</code> (إشارة التيلدا) = المجلد الشخصي للمستخدم الحالي (مثلاً <code>/home/ahmed</code>). إذا كنت الـ root، فإن <code>~</code> تشير لـ <code>/root</code>.</li>
+                    <li><code>-</code> (الشرطة السالبة) = المجلد الذي كنت فيه قبل الانتقال للمجلد الحالي (يعمل مع أمر <code>cd</code> فقط).</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="importance">
+            <h2>لماذا يُعد هذا التنظيم عبقرياً ومهماً؟</h2>
+            <div class="dir-card" style="border-color: var(--accent);">
+                <ul class="styled-list">
+                    <li><strong>الأمان (Security):</strong> بفضل الفصل بين <code>/bin</code> (برامج لا يغيرها إلا المدير) و <code>/home</code> (بيانات المستخدم)، يصعب على فيروسات أو برامج خبيثة (إذا تم تنفيذها كمسخدم عادي) تدمير النظام.</li>
+                    <li><strong>سهولة النسخ الاحتياطي (Backups):</strong> إذا أردت أخذ نسخة احتياطية من إعدادات النظام بالكامل، تحتاج فقط لضغط مجلد <code>/etc</code>. إذا أردت نسخ بيانات المستخدمين، تنسخ <code>/home</code>. الأمر منظم جداً.</li>
+                    <li><strong>التوسع والمرونة (Scalability):</strong> يمكنك تركيب قسم القرص الصلب بالكامل تحت <code>/home</code>، وقرص صلب خارجي سريع جداً (NVMe) تحت <code>/var/lib/mysql</code> لقاعدة البيانات. البرامج لن تشعر بأي فرق لأنها تتعامل مع المسار الوهمي فقط.</li>
+                    <li><strong>التشخيص السريع:</strong> عند حدوث عطل، أول مكان يذهب إليه الخبير هو <code>/var/log</code>. وعند حدوث خلل في إعدادات الشبكة، يعلم فوراً أن يفتح <code>/etc/network</code>. هذا التوافق (Standardization) يوفر ملايين الساعات للمبرمجين حول العالم.</li>
+                </ul>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // Simple script to highlight active section in sidebar while scrolling
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('.sidebar a');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= sectionTop - 100) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

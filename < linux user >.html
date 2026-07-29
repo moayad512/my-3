@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الموسوعة الشاملة للتنظيم الهرمي لنظام لينكس</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Fira+Code:wght@400;600&display=swap');
+
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --accent2: #818cf8;
+            --warning: #fb923c;
+            --danger: #f87171;
+            --success: #4ade80;
+            --code-bg: #020617;
+            --cmd-bg: #0c1425;
+            --border: #334155;
+            --pro-bg: rgba(168, 85, 247, 0.1); /* Purple for Pro sections */
+            --pro-border: #a855f7;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.8;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 290px;
+            background-color: var(--card-bg);
+            border-left: 1px solid var(--border);
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent) var(--card-bg);
+        }
+        .sidebar h2 {
+            color: var(--accent);
+            padding: 0 20px 15px;
+            border-bottom: 1px solid var(--border);
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+        }
+        .sidebar ul { list-style: none; }
+        .sidebar ul li a {
+            display: block;
+            padding: 7px 20px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+            border-right: 3px solid transparent;
+        }
+        .sidebar ul li a:hover, .sidebar ul li a.active {
+            color: var(--accent);
+            background-color: rgba(56, 189, 248, 0.05);
+            border-right-color: var(--accent);
+        }
+        .sidebar .sep {
+            margin: 15px 20px;
+            border-top: 1px dashed var(--border);
+        }
+        .sidebar .pro-link { color: var(--pro-border) !important; font-weight: 600; }
+
+        .main-content {
+            flex: 1;
+            padding: 40px 50px;
+            max-width: 950px;
+        }
+        .header-section {
+            margin-bottom: 50px;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 30px;
+        }
+        .header-section h1 {
+            font-size: 2.4rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--accent), var(--accent2), var(--pro-border));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+        }
+        .header-section p { font-size: 1.05rem; color: var(--text-muted); }
+
+        h2 {
+            color: var(--accent);
+            font-size: 1.7rem;
+            margin: 50px 0 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        h2::before {
+            content: ''; display: inline-block; width: 6px; height: 28px;
+            background-color: var(--accent); border-radius: 3px;
+        }
+        h3 {
+            color: var(--accent2);
+            margin: 25px 0 10px;
+            font-size: 1.15rem;
+        }
+        p { margin-bottom: 15px; }
+
+        .dir-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .dir-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            border-color: var(--accent);
+        }
+        
+        /* Pro Card Style */
+        .pro-card {
+            background: linear-gradient(145deg, var(--card-bg), rgba(168, 85, 247, 0.05));
+            border: 1px solid var(--pro-border);
+        }
+        .pro-card:hover { border-color: #c084fc; box-shadow: 0 8px 25px rgba(168, 85, 247, 0.15); }
+        .pro-card h3 { color: var(--pro-border) !important; }
+
+        .dir-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .dir-name {
+            font-family: 'Fira Code', monospace;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--success);
+            direction: ltr;
+            display: inline-block;
+        }
+        .dir-meaning {
+            background-color: rgba(129, 140, 248, 0.15);
+            color: var(--accent2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .dir-desc { color: var(--text-main); margin-bottom: 15px; }
+
+        .cmd-box {
+            background-color: var(--cmd-bg);
+            border-radius: 8px;
+            padding: 15px;
+            border-right: 3px solid var(--success);
+            margin: 15px 0;
+            position: relative;
+        }
+        .cmd-box h4 { color: var(--success); font-size: 0.9rem; margin-bottom: 8px; }
+        
+        .examples-box {
+            background-color: var(--code-bg);
+            border-radius: 8px;
+            padding: 15px;
+            border-right: 3px solid var(--warning);
+            margin: 15px 0;
+        }
+        .examples-box h4 { color: var(--warning); font-size: 0.9rem; margin-bottom: 8px; }
+
+        code {
+            font-family: 'Fira Code', monospace;
+            background-color: var(--code-bg);
+            color: var(--danger);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            direction: ltr;
+            display: inline-block;
+        }
+        pre {
+            background-color: var(--code-bg);
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            direction: ltr;
+            text-align: left;
+            border: 1px solid var(--border);
+            margin: 10px 0;
+            position: relative;
+        }
+        pre code {
+            background: none; padding: 0;
+            color: var(--text-main); font-size: 0.95rem;
+        }
+
+        .note {
+            background-color: rgba(56, 189, 248, 0.1);
+            border-right: 4px solid var(--accent);
+            padding: 15px; margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .warning-note {
+            background-color: rgba(251, 146, 60, 0.1);
+            border-right: 4px solid var(--warning);
+            padding: 15px; margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .danger-note {
+            background-color: rgba(248, 113, 113, 0.1);
+            border-right: 4px solid var(--danger);
+            padding: 15px; margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        ul.styled-list { list-style: none; padding-right: 20px; }
+        ul.styled-list li { position: relative; margin-bottom: 10px; }
+        ul.styled-list li::before { content: '♦'; color: var(--accent); position: absolute; right: -20px; }
+
+        .copy-btn {
+            position: absolute; top: 8px; left: 8px;
+            background: var(--accent); color: var(--bg-color);
+            border: none; padding: 4px 10px; border-radius: 4px;
+            cursor: pointer; font-family: 'Cairo'; font-weight: bold;
+            font-size: 0.8rem; transition: 0.2s; z-index: 10;
+        }
+        .copy-btn:hover { background: #fff; }
+
+        @media (max-width: 950px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; position: relative; border-left: none; border-bottom: 1px solid var(--border); }
+            .sidebar ul { display: flex; flex-wrap: wrap; padding: 0 10px; }
+            .sidebar ul li a { padding: 8px 12px; border-right: none; border-bottom: 2px solid transparent; }
+            .sidebar ul li a:hover, .sidebar ul li a.active { border-right-color: transparent; border-bottom-color: var(--accent); }
+            .main-content { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="sidebar">
+        <h2>فهرس الموسوعة الشاملة</h2>
+        <ul>
+            <li><a href="#philosophy">الفلسفة الأساسية</a></li>
+            <li><a href="#fhs">معيار FHS</a></li>
+            <li><a href="#inodes">مفهوم Inodes</a></li>
+            
+            <li><a href="#root" style="color:var(--success)">مجلدات الجذر (/)</a></li>
+            <li><a href="#bin">/bin و /sbin</a></li>
+            <li><a href="#boot">/boot</a></li>
+            <li><a href="#dev">/dev</a></li>
+            <li><a href="#etc">/etc</a></li>
+            <li><a href="#home-root">/home و /root</a></li>
+            <li><a href="#lib">/lib</a></li>
+            <li><a href="#usr">/usr</a></li>
+            <li><a href="#var">/var</a></li>
+            <li><a href="#tmp">/tmp</a></li>
+            <li><a href="#opt">/opt</a></li>
+            <li><a href="#media-mnt">/media و /mnt</a></li>
+            <li><a href="#proc-sys">/proc و /sys</a></li>
+            <li><a href="#run-lost">/run و /lost+found</a></li>
+            
+            <div class="sep"></div>
+            <li><a href="#paths" style="color:var(--warning)">المسارات والتنقل</a></li>
+            <li><a href="#navigation">إتقان التنقل</a></li>
+            
+            <div class="sep"></div>
+            <li><a href="#shebang" class="pro-link">وهم الامتدادات والـ Shebang</a></li>
+            <li><a href="#packages" class="pro-link">مديرو الحزم والتوزيع</a></li>
+            <li><a href="#mounting" class="pro-link">آلية الـ Mounting العميقة</a></li>
+            
+            <div class="sep"></div>
+            <li><a href="#permissions">الصلاحيات rwx</a></li>
+            <li><a href="#chattr" class="pro-link">الحماية المطلقة (chattr)</a></li>
+            <li><a href="#links">الروابط Links</a></li>
+            <li><a href="#tools">أوامر الخريطة الكاملة</a></li>
+            <li><a href="#safety">القواعد الذهبية للسلامة</a></li>
+        </ul>
+    </nav>
+
+    <main class="main-content">
+        
+        <header class="header-section">
+            <h1>الموسوعة الشاملة لهيكل لينكس</h1>
+            <p>دليل يجمع بين النظرية المعمقة، والمفاهيم المتقدمة المخفية، والسيناريوهات العملية الميدانية لسطر الأوامر.</p>
+        </header>
+
+        <section id="philosophy">
+            <h2>1. الفلسفة الأساسية</h2>
+            <ul class="styled-list">
+                <li><strong>كل شيء هو ملف:</strong> المستندات، الأجهزة المادية (القرص الصلب، المنافذ التسلسلية)، ومعلومات النواة (Kernel) والعمليات تمثل كملفات.</li>
+                <li><strong>شجرة مقلوبة مفردة:</strong> لا يوجد أقراص منفصلة. يبدأ النظام من <strong>الجذر (/)</strong>. الأقراص الجديدة تُربط (Mount) كفروع داخلها.</li>
+                <li><strong>حساسية حالة الأحرف:</strong> <code>File</code> يختلف عن <code>file</code>.</li>
+            </ul>
+        </section>
+
+        <section id="fhs">
+            <h2>2. المعيار القياسي (FHS)</h2>
+            <p>موثق في معيار <strong>FHS (Filesystem Hierarchy Standard)</strong> ليضمن توافق البرامج عبر جميع توزيعات لينكس اليونكسية.</p>
+        </section>
+
+        <section id="inodes">
+            <div class="dir-card pro-card">
+                <h3 style="color: var(--pro-border); margin-top:0;">مفهوم متقدم: ما هي الـ Inodes؟</h3>
+                <p>عند إنشاء ملف، لا يخزن لينكس الاسم والمحتوى معاً. بل يُنشئ "بطاقة هوية" تسمى Inode تحتوي على: الصلاحيات، المالك، الحجم، ومؤشرات إلى مواقع البيانات الفعلية على القرص الصلب.</p>
+                <p class="note"><strong>الخلاصة:</strong> الملف الذي تراه في المجلد هو مجرد "وصلة" تشير إلى رقم الـ Inode. إذا امتلأت مساحة الـ Inodes (رغم وجود مساحة فارغة)، لن تستطيع إنشاء ملفات جديدة! (يحدث كثيراً مع ملفات السجلات الصغيرة جداً).</p>
+            </div>
+        </section>
+
+        <section id="root"><h2>3. شرح تفصيلي لمجلدات الجذر (/)</h2></section>
+
+        <section id="bin">
+            <div class="dir-card">
+                <div class="dir-title"><span class="dir-name">/bin & /sbin</span><span class="dir-meaning">الملفات التنفيذية</span></div>
+                <p class="dir-desc"><code>/bin</code> أوامر للمستخدمين. <code>/sbin</code> أوامر لمدير النظام Root.</p>
+                <div class="cmd-box"><h4>🌍 تطبيق: معرفة مكان الأمر</h4><pre><code>which ls
+which python3</code></pre></div>
+            </div>
+        </section>
+
+        <section id="boot">
+            <div class="dir-card">
+                <div class="dir-title"><span class="dir-name">/boot</span><span class="dir-meaning">ملفات الإقلاع</span></div>
+                <p class="dir-desc">يحتوي على النواة (vmlinuz) والـ initramfs و GRUB. مسحه يعني تدمير قدرة النظام على الإقلاع.</p>
+            </div>
+        </section>
+
+        <section id="dev">
+            <div class="dir-card">
+                <div class="dir-title"><span class="dir-name">/dev</span><span class="dir-meaning">ملفات الأجهزة</span></div>
+                <p class="dir-desc">تمثيل الأجهزة كملفات (مثل <code>/dev/sda</code>).</p>
+                <div class="cmd-box"><h4>🌍 تطبيق: عرض الأقراص المتصلة</h4><pre><code>lsblk</code></pre></div>
+                <div class="cmd-box"><h4>🌍 تطبيق: إخفاء المخرجات (الثقب الأسود)</h4><pre><code>ping google.com > /dev/null</code></pre></div>
+            </div>
+        </section>
+
+        <section id="etc">
+            <div class="dir-card">
+                <div class="dir-title"><span class="dir-name">/etc</span><span class="dir-meaning">ملفات الإعدادات</span></div>
+                <p class="dir-desc">ملفات نصية تتحكم في النظام.</p>
+                <div class="cmd-box"><h4>🌍 تطبيق: تغيير اسم الجهاز</h4><pre><code>cat /etc/hostname
+sudo nano /etc/hostname</code></pre></div>
+            </div>
+        </section>
+
+        <section id="home-root">
+            <div class="dir-card">
+                <div class="dir-title"><span class="dir-name">/home & /root</span><span class="dir-meaning">المنازل الشخصية</span></div>
+                <p class="dir-desc"><code>/home/user</code> للبيانات الشخصية. <code>/root</code> منزل المدير، يقع خارج home لضمان عمله حتى لو تعطل قسم المنازل.</p>
+            </div>
+        </section>
+
+        <section id="lib">
+            <div class="dir-card">
+                <div class="dir-title"><span class="dir-name">/lib</span><span class="dir-meaning">المكتبات المشتركة</span></div>
+                <p class="dir-desc">تشبه DLLs في ويندوز. مكتبات لتشغيل أوامر <code>/bin</code>. يحتوي أيضاً على مشغلات النواة في <code>/lib/modules/</code>.</p>
+            </div>
+        </section>
+
+        <section id="usr">
+            <div class="dir-card">
+                <div class="dir-title"><span class="dir-name">/usr</span><span class="dir-meaning">موارد يونكس</span></div>
+                <p class="dir-desc">ثاني أكبر هيكل. يحتوي على التطبيقات غير الأساسية للإقلاع.</p>
+                <div class="note" style="border-right-color: var(--success); background-color: rgba(74, 222, 128, 0.1);"><strong>تطور حديث:</strong> في التوزيعات الحديثة، أصبح <code>/bin</code> مجرد رابط يشير إلى <code>/usr/bin</code> لتبسيط النظام.</div>
+            </div>
+        </section>
+
+        <section id="var">
+            <div class="dir-card">
+                <div class="dir-title"><span class="dir-name">/var</span><span class="dir-meaning">البيانات المتغيرة</span></div>
+                <p class="dir-desc">سجلات (<code>/var/log</code>)، مؤقتات (<code>/var/cache</code>).</p>
+                <div class="cmd-box"><h4>🌍 تطبيق: مراقبة أعطال النظام لحظياً</h4><pre><code>sudo tail -f /var/log/syslog</code></pre></div>
+            </div>
+        </section>
+
+        <section id="tmp">
+            <div class="dir-card">
+                <div class="dir-title"><span class="dir-name">/tmp</span><span class="dir-meaning">المؤقتات</span></div>
+                <p class="dir-desc">يُحذف عند إعادة التشغيل. يطبق عليه <strong>Sticky Bit</strong> ليتمكن المستخدم من حذف ملفاته فقط.</p>
+            </div>
+        </section>
+
+        <section id="opt">
+            <div class="dir-card">
+                <div class="dir-title"><span class="dir-name">/opt</span><span class="dir-meaning">اختياري</span></div>
+                <p class="dir-desc">للبرامج الكبيرة أو التجارية التي تُثبت يدوياً خارج مستودعات النظام (مثل Chrome).</p>
+            </div>
+        </section>
+
+        <section id="media-mnt">
+            <div class="dir-card">
+                <div class="dir-title"><span class="dir-name">/media & /mnt</span><span class="dir-meaning">نقاط الربط</span></div>
+                <p class="dir-desc"><code>/media</code> للتركيب التلقائي (GUI). <code>/mnt</code> للتركيب اليدوي (CLI).</p>
+            </div>
+        </section>
+
+        <section id="proc-sys">
+            <div class="dir-card">
+                <div class="dir-title"><span class="dir-name">/proc & /sys</span><span class="dir-meaning">وهمية (Virtual)</span></div>
+                <p class="dir-desc">تمثيل في الذاكرة (RAM) للنواة.</p>
+                <div class="cmd-box"><h4>🌍 تطبيق: قراءة مواصفات العتاد</h4><pre><code>cat /proc/cpuinfo | grep "model name"
+cat /proc/meminfo</code></pre></div>
+            </div>
+        </section>
+
+        <section id="run-lost">
+            <div class="dir-card">
+                <div class="dir-title"><span class="dir-name">/run & /lost+found</span><span class="dir-meaning">تشغيل ومفقودات</span></div>
+                <p class="dir-desc"><code>/run</code> لبيانات التشغيل الحالية. <code>/lost+found</code> لشظايا الملفات المنقذة بعد انقطاع الكهرباء.</p>
+            </div>
+        </section>
+
+        <section id="paths">
+            <h2>4. المسارات والتنقل</h2>
+            <ul class="styled-list">
+                <li><strong>مسار مطلق:</strong> من الجذر <code>/home/a/file</code>.</li>
+                <li><strong>مسار نسبي:</strong> من موقعك <code>a/file</code>.</li>
+            </ul>
+            <div class="examples-box"><h4>اختصارات:</h4> <code>.</code> (الحالي) &nbsp;|&nbsp; <code>..</code> (الأب) &nbsp;|&nbsp; <code>~</code> (المنزل) &nbsp;|&nbsp; <code>-</code> (السابق)</div>
+        </section>
+
+        <section id="navigation">
+            <div class="dir-card" style="border-color: var(--success);">
+                <h3 style="color: var(--success); margin-top:0;">🌍 إتقان التنقل الميداني</h3>
+                <pre><code>pwd          # أين أنا؟
+ls -la       # عرض مفصل مع الملفات المخفية
+cd /etc      # تنقل مطلق
+cd ..        # خطوة للخلف
+cd ~         # العودة للمنزل فوراً
+cd -         # الرجوع للمجلد السابق فوراً</code></pre>
+            </div>
+        </section>
+
+        <!-- NEW PRO SECTIONS -->
+
+        <section id="shebang">
+            <div class="dir-card pro-card">
+                <h3 style="color: var(--pro-border); margin-top:0">السر المحترف: وهم الامتدادات والـ Shebang</h3>
+                <p>في ويندوز، يعتمد النظام على الامتداد (مثل <code>.exe</code> أو <code>.mp3</code>) ليعرف كيف يتعامل مع الملف. في لينكس، <strong>الامتداد غير مهم إطلاقاً للنظام</strong>. يمكنك تسمية ملف تنفيذي <code>my_file.txt</code> وسيعمل إذا كانت صلاحيات التنفيذ مفعلة!</p>
+                <p><strong>كيف يعرف لينكس أي مترجم (Interpreter) يستخدم لتشغيل السكربت؟</strong><br>
+                عبر السطر الأول من الملف ويسمى <strong>Shebang</strong> <code>#!</code>.</p>
+                <div class="cmd-box">
+                    <h4>تطبيق: إنشاء سكربت بايثون وسكربت بش</h4>
+                    <pre><code># سكربت باش (يبدأ بالمسار التالي)
+#!/bin/bash
+echo "Hello from Bash"
+
+# سكربت بايثون (يبدأ بالمسار التالي)
+#!/usr/bin/env python3
+print("Hello from Python")</code></pre>
+                </div>
+                <p class="note">عند كتابة <code>./script.sh</code> في الطرفية، يقرأ لينكس السطر الأول، يرى <code>#!/bin/bash</code>، فيقوم بتشغيل مترجم باش ويمرر له الملف ككل لتنفيذه.</p>
+            </div>
+        </section>
+
+        <section id="packages">
+            <div class="dir-card pro-card">
+                <h3 style="color: var(--pro-border); margin-top:0">السر المحترف: مديرو الحزم والتوزيع</h3>
+                <p>عندما تكتب <code>sudo apt install nginx</code> (في أنظمة ديبيان)، ماذا يحدث في الهيكل الهرمي بالضبط؟ مدير الحزم يقوم بتوزيع الملفات المستخرجة من الحزمة بأتمتة كاملة وفق معيار FHS:</p>
+                <ul class="styled-list">
+                    <li>الملفات التنفيذية للبرنامج تُرسل إلى <code>/usr/sbin/</code>.</li>
+                    <li>ملفات الإعدادات الخاصة بالبرنامج تُرسل إلى <code>/etc/nginx/</code>.</li>
+                    <li>الصفحات الرئيسية لموقع الويب تُرسل إلى <code>/var/www/html/</code>.</li>
+                    <li>ملفات السجل الخاصة بالبرنامج تُنشأ في <code>/var/log/nginx/</code>.</li>
+                    <li>المكتبات الإضافية تُرسل إلى <code>/usr/lib/</code>.</li>
+                </ul>
+                <p class="note"><strong>لماذا هذا مهم؟</strong> عندما تريد حذف البرنامج بالكامل، يكفي أمر <code>apt remove nginx</code> ليمسح أثره من كل هذه المجلدات. أما إذا قمت بتثبيت برنامج يدوياً (بالسحب والنسخ)، سيترك برامجاً أوتاراً (Orphan files) في كل مكان تسبب تضخم النظام.</p>
+            </div>
+        </section>
+
+        <section id="mounting">
+            <div class="dir-card pro-card">
+                <h3 style="color: var(--pro-border); margin-top:0">السر المحترف: آلية الـ Mounting العميقة</h3>
+                <p>كيف يتم ربط قرص فعلي (مثل <code>/dev/sdb1</code>) داخل شجرة المجلدات (مثل <code>/mnt/usb</code>)؟</p>
+                <div class="cmd-box">
+                    <h4>تطبيق: الربط اليدوي</h4>
+                    <pre><code># 1. إنشاء نقطة الربط (المجلد)
+sudo mkdir -p /mnt/usb
+
+# 2. الربط الفعلي
+sudo mount /dev/sdb1 /mnt/usb
+
+# 3. الآن يمكنك التعامل مع الملفات داخل /mnt/usb كأنها على الفلاشة
+
+# 4. لفصل الفلاشة بأمان (مهم جداً لعدم فقدان البيانات)
+sudo umount /mnt/usb</code></pre>
+                </div>
+                <p><strong>الربط الدائم (<code>/etc/fstab</code>):</strong><br>
+                إذا أردت أن يربط النظام القرص تلقائياً عند كل إقلاع، لا تكتب أمر الربط يدوياً. بل تضيف سطراً في ملف <code>/etc/fstab</code>. تنسيق السطر هو:</p>
+                <pre><code># الجهاز        نقطة الربط     نوع النظام  الخيارات  تفريغ  فحص
+/dev/sdb1       /mnt/mydisk    ext4        defaults   0       2</code></pre>
+                <p class="warning-note"><strong>تحذير:</strong> خطأ في كتابة ملف <code>/etc/fstab</code> سيجعل النظام يدخل في حالة <code>Emergency Mode</code> ولن يستطيع الإقلاع! دائماً اختبر الربط يدوياً أولاً.</p>
+            </div>
+        </section>
+
+        <!-- END NEW PRO SECTIONS -->
+
+        <section id="permissions">
+            <div class="dir-card" style="border-color: var(--danger);">
+                <h3 style="color: var(--danger); margin-top:0;">نظام الصلاحيات (rwx)</h3>
+                <p>عند <code>ls -l</code>، الرموز مثل <code>-rwxr-xr--</code> تعني:</p>
+                <ul class="styled-list">
+                    <li><code>-</code> : نوع الملف (ملف عادي، أو <code>d</code> لمجلد).</li>
+                    <li><code>rwx</code> : المالك (قراءة، كتابة، تنفيذ).</li>
+                    <li><code>r-x</code> : المجموعة (قراءة، تنفيذ، بدون كتابة).</li>
+                    <li><code>r--</code> : الآخرون (قراءة فقط).</li>
+                </ul>
+                <div class="cmd-box">
+                    <h4>تطبيق: التعديل بالأرقام (Octal)</h4>
+                    <pre><code># r=4, w=2, x=1
+# المالك (7=4+2+1) | المجموعة (5=4+1) | الآخرون (4=4)
+chmod 754 script.sh</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <section id="chattr">
+            <div class="dir-card pro-card">
+                <h3 style="color: var(--pro-border); margin-top:0">الحماية المطلقة: الأمر chattr</h3>
+                <p>هل تعلم أنه حتى المستخدم <code>root</code> (صاحب أعلى صلاحيات) يمكن إيقافه عن حذف أو تعديل ملف معين؟ يتم ذلك باستخدام "سمات الملفات" وليس الصلاحيات العادية.</p>
+                <div class="cmd-box">
+                    <h4>تطبيق: تجميد ملف (جعله Immutable)</h4>
+                    <pre><code># إضافة سمة التجميد على ملف الإعدادات
+sudo chattr +i /etc/resolv.conf
+
+# الآن حتى Root لا يستطيع تعديله أو حذفه!
+sudo rm /etc/resolv.conf # سيعطي خطأ: Operation not permitted
+
+# لإزالة التجميد والعودة للوضع الطبيعي
+sudo chattr -i /etc/resolv.conf</code></pre>
+                </div>
+                <p class="note">يُستخدم هذا بكثرة لحماية ملفات النظام الحرجة من البرامج الخبيثة أو الأخطاء البشرية، أو لمنع مديري الحزم من تبديل ملفات إعدادات الشبكة المخصصة.</p>
+            </div>
+        </section>
+
+        <section id="links">
+            <div class="dir-card" style="border-color: var(--accent2);">
+                <h3 style="color: var(--accent2); margin-top:0;">الروابط (Links)</h3>
+                <ul class="styled-list">
+                    <li><strong>رابط ناعم (Symlink):</strong> اختصار. إذا حذفت الأصل، يتعطل. (يستخدم لربط <code>/bin</code> بـ <code>/usr/bin</code>).</li>
+                    <li><strong>رابط صلب (Hard Link):</strong> اسم ثاني للملف يشير لنفس الـ Inode. حذف الاسم الأصلي لا يحذف البيانات طالما يوجد رابط صلب.</li>
+                </ul>
+                <div class="cmd-box">
+                    <h4>تطبيق: إنشاء اختصار</h4>
+                    <pre><code>ln -s /etc/passwd ~/Desktop/passwd_shortcut</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <section id="tools">
+            <h2>5. أوامر الخريطة الكاملة</h2>
+            <div class="dir-card">
+                <div class="cmd-box" style="border-right-color: var(--accent);"><h4>البحث عن ملف ضائع</h4><pre><code>sudo find / -name "config.ini" 2>/dev/null</code></pre></div>
+                <div class="cmd-box" style="border-right-color: var(--accent);"><h4>معرفة المساحة الفارغة</h4><pre><code>df -h</code></pre></div>
+                <div class="cmd-box" style="border-right-color: var(--accent);"><h4>حجم مجلد معين</h4><pre><code>sudo du -sh /var/log</code></pre></div>
+            </div>
+        </section>
+
+        <section id="safety">
+            <h2>6. القواعد الذهبية للسلامة</h2>
+            <div class="danger-note"><strong>1.</strong> لا تستخدم <code>sudo</code> إلا للضرورة (عند التعديل في <code>/etc</code> مثلاً).</div>
+            <div class="danger-note">
+                <strong>2.</strong> لا تنفذ هذا الأمر أبداً (يمسح النظام وهو يعمل):
+                <pre><code style="color: #f87171; font-weight: bold;">sudo rm -rf /</code></pre>
+            </div>
+            <div class="note"><strong>3.</strong> مجلدات <code>/home/user</code> و <code>/tmp</code> هي مناطق اللعب الآمنة. افعل ما شئت فيها.</div>
+        </section>
+
+    </main>
+
+    <script>
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('.sidebar a');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= sectionTop - 120) current = section.getAttribute('id');
+            });
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) link.classList.add('active');
+            });
+        });
+
+        document.querySelectorAll('pre').forEach(pre => {
+            const btn = document.createElement('button');
+            btn.className = 'copy-btn';
+            btn.innerText = 'نسخ';
+            pre.style.position = 'relative';
+            pre.appendChild(btn);
+
+            btn.onclick = () => {
+                const codeText = pre.querySelector('code') ? pre.querySelector('code').innerText : pre.innerText;
+                navigator.clipboard.writeText(codeText).then(() => {
+                    btn.innerText = 'تم النسخ ✓';
+                    btn.style.background = 'var(--success)';
+                    setTimeout(() => { btn.innerText = 'نسخ'; btn.style.background = 'var(--accent)'; }, 2000);
+                }).catch(() => { btn.innerText = 'خطأ!'; btn.style.background = 'var(--danger)'; });
+            };
+        });
+    </script>
+</body>
+</html>
