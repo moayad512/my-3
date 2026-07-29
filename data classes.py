@@ -128,3 +128,6 @@ print(emplyee1)
 emplyee2 =Employee("bulal", 25 , 174, "bulal.com",3500)
 print(emplyee2)
 #moayad al haj om
+#dms,mad,mf,dam
+
+# fdkfjskjkfjkfd
