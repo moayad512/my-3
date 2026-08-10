@@ -1,38 +1,37 @@
 # -----------------------------------
 # -- Modules => Create Your Module --
 # -----------------------------------
-
+import momo
 import sys
-sys.path.append(r"mm:\modules")
-print(sys.path)
+# sys.path.append(r"mm:\momo.py")
+# print(sys.path)
 
-import elzero
-print(dir(elzero))
+print(dir(momo))
 
-elzero.sayHello("Ahmed")
-elzero.sayHello("Osama")
-elzero.sayHello("Mohamed")
+momo.seyHallo("Ahmed")
+momo.seyHallo("Osama")
+momo.seyHallo("Mohamed")
 
-elzero.sayHowAreYou("Ahmed")
-elzero.sayHowAreYou("Osama")
-elzero.sayHowAreYou("Mohamed")
+momo.seyHawAreYou("Ahmed")
+momo.seyHawAreYou("Osama")
+momo.seyHawAreYou("Mohamed")
 
 # Alias
 
-import elzero as ee
+import momo as ee
 
-ee.sayHello("Ahmed")
-ee.sayHello("Osama")
-ee.sayHello("Mohamed")
+ee.seyHallo("Ahmed")
+ee.seyHallo("Osama")
+ee.seyHallo("Mohamed")
 
-ee.sayHowAreYou("Ahmed")
-ee.sayHowAreYou("Osama")
-ee.sayHowAreYou("Mohamed")
+ee.seyHawAreYou("Ahmed")
+ee.seyHawAreYou("Osama")
+ee.seyHawAreYou("Mohamed")
 
-from elzero import sayHello
+# from momo import sayHello
 
-sayHello("Osama")
+# sayHello("Osama")
 
-from elzero import sayHello as ss
+# from momo import sayHello as ss
 
-ss("Osama")
+# ss("Osama")
