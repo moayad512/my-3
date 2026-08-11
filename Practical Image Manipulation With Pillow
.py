@@ -5,7 +5,7 @@
 from PIL import Image
 
 # Open The Image
-myImage = Image.open("D:\Python\Files\game.jpg")
+myImage = Image.open("/home/muayad/Pictures/Screenshots/Screenshot From 2026-07-06 15-30-55.png")
 
 # Show The Image
 myImage.show()
@@ -18,5 +18,5 @@ myNewImage = myImage.crop(myBox)
 myNewImage.show()
 
 # My Converted Mode Image
-myConverted = myImage.convert("L")
-myConverted.show()
+# myConverted = myImage.convert("L")
+# myConverted.show()
