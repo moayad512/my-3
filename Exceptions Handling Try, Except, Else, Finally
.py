@@ -53,7 +53,7 @@ except ValueError:
 
 except:
 
-#   print("Error Happens")
+  print("Error Happens")
 # def my_namber (number) -> int:
 #     x = int (input("Enter int: -> 1 , 2 ....  : " ))  
     

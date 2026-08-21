@@ -13,7 +13,7 @@ x = -10
 
 if x < 0:
 
-  raise Exception(f"The Number {x} Is Less Than Zero")
+  # raise Exception(f"The Number {x} Is Less Than Zero")
 
   print("This Will Not Print Because The Error")
 
