@@ -10,3 +10,4 @@
 # - You Can Browse File With https://sqlitebrowser.org/
 # - Data Inside Database Has Types (Text, Integer, Date)
 # ------------------------------------------------------
+# 

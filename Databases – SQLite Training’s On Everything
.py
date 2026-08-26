@@ -50,3 +50,4 @@ def get_all_data():
       print("Connection To Database Is Closed")
 
 get_all_data()
+# 
