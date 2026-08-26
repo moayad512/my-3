@@ -8,7 +8,7 @@ import sqlite3
 
 def get_all_data():
     try:
-        db = sqlite3.connect ("app.db")
+        db = sqlite3.connect("app.db")
         print(" connected To Database Successfully")
         
             #  Setting The Cursor
@@ -29,7 +29,7 @@ def get_all_data():
             print(f"Username => {row[1]}")
             
     except sqlite3.Error as er:
-        print("Error Reading Data {er}")
+        print(f"Error Reading Data {er}")
     finally:
         if (db):
             # close Database connection
